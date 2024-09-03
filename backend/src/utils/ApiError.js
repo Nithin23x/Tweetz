@@ -1,0 +1,1 @@
+class ApiError extends Error
