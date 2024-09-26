@@ -128,7 +128,7 @@ export const logoutUser = asyncHandler( async(req,res,next) =>{
             new:true
         }
     )
-    cookieOptions = {
+    const cookieOptions = {
         httpOnly:true,
         secure:true
     }
@@ -144,3 +144,11 @@ export const logoutUser = asyncHandler( async(req,res,next) =>{
     console.log(userLogoutDetails)
 })
 
+export const getMe = asyncHandler( async(req,res) =>{
+    const getUser = await User.findById(req.user?._id).select("-password -refreshToken")
+
+    res.status(200)
+    .json(
+        new ApiResponse(200,getUser,"User fetched")
+    )
+})

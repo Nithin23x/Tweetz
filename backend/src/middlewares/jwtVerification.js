@@ -6,14 +6,14 @@ import { User } from "../models/user.models.js";
 export const jwtVerification = asyncHandler(async(req,res,next) =>{
 
     //checking if user is logged in by verifying the access token 
-    try {
+     
         //we have access to accessTOken in req.cookies 
         const token = req.cookies?.accessToken
         console.log(token)
         
         //decoding the token with secret key 
         if(!token) {
-            throw new ApiError(401,"Unauthorized request ")
+            throw new ApiError(401,"Unauthorized request.User not loggedIn")
         }
     
         const decodedToken = jwt.verify(token,process.env.ACCESS_TOKEN_SECRET)
@@ -28,7 +28,5 @@ export const jwtVerification = asyncHandler(async(req,res,next) =>{
         req.user = userDetails
 
         next()
-    } catch (error) {
-        throw new ApiError(400,"Unauthorized request ")
-    }
+    
 })
