@@ -10,7 +10,7 @@ app.use(cors({
     credentials:true
 }))
 
-app.use(express.json({limit:"50kb"}))
+app.use(express.json({limit:"50kb"})) //to parse the req.body into json format 
 app.use(express.urlencoded({limit:"500kb",extended:true}))
 app.use(express.static('public')) 
 app.use(cookieParser())
