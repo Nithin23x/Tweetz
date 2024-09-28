@@ -9,13 +9,15 @@ export const jwtVerification = asyncHandler(async(req,res,next) =>{
      
         //we have access to accessTOken in req.cookies 
         const token = req.cookies?.accessToken
-        console.log(token)
+        console.log(token,'token')
         
         //decoding the token with secret key 
         if(!token) {
+            // return res.json({message:"Unauthorized request.User not loggedIn"})
             throw new ApiError(401,"Unauthorized request.User not loggedIn")
         }
     
+        console.log("token end") 
         const decodedToken = jwt.verify(token,process.env.ACCESS_TOKEN_SECRET)
 
         //finding the user by id and creating a object in req : req.user = user 

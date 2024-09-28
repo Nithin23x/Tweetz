@@ -12,14 +12,16 @@ app.use(cors({
 
 app.use(express.json({limit:"50kb"})) //to parse the req.body into json format 
 app.use(express.urlencoded({limit:"500kb",extended:true}))
-app.use(express.static('public')) 
+app.use(express.static('public'))
 app.use(cookieParser())
 
 
 //Application Routes,defining them as middlewares app.use()
 import { userRouter } from './routes/user.routes.js'
+import { appRouter } from './routes/app.routes.js'
 
-app.use("/api/v1",userRouter)  // api/v1 is route ans userRouter routing section re-direct to controllers 
+app.use("/api/v1/users",userRouter)  // api/v1 is route ans userRouter routing section re-direct to controllers 
+app.use("/api/v1/app",appRouter) 
 
 
 
