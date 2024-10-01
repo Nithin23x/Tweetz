@@ -40,11 +40,11 @@ const userSchema = new mongoose.Schema({
             default:[]
         }
     ],
-    profileImg:{
+    profileImage:{
         type:String,
         default:'' //url from cloudinary 
     },
-    coverImg:{
+    coverImage:{
         type:String,
         default:"" //url from cloudinary 
     },

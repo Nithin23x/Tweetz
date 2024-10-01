@@ -2,6 +2,7 @@ import {asyncHandler} from '../utils/asyncHandler.js'
 import { ApiError } from '../utils/ApiError.js'
 import { User } from '../models/user.models.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
+import { cloudUpload } from '../utils/cloudinary.js'
 
 
 export const generateAccessAndRefreshToken = async function(userId) {
@@ -31,9 +32,10 @@ export const registerUser =  asyncHandler( async(req,res) =>{
     //Global Rule Use "await" whenever there is DB call 
 
     //1.Get the data from the req.body 
-    const{email,fullName,username,password} = req.body
+    const{email,fullName,username,password,profileImage,coverImage} = req.body
 
     console.log(email,fullName)
+    
 
     //2.Validation/Checking the data email, fullname , password fields are not empty
     if(
@@ -50,12 +52,25 @@ export const registerUser =  asyncHandler( async(req,res) =>{
         throw new ApiError(409,"User Already Exists")
     }
 
+    //coverimage and profile image 
+    console.log("\n",req.files , "\nFiles")
+    const profileLocalPath = req.files?.profileImage[0].path
+    const coverLocalPath = req.files?.coverImage[0].path 
+
+    //clodinary uploading 
+    const profileImageUpload = await cloudUpload(profileLocalPath)
+    const coverImageUpload = await cloudUpload(coverLocalPath)
+
+    console.log("\n Profile Upload",profileImageUpload)
+
+
     const newUser = await  User.create({ // await because DB is takes time for processing 
         username,
         fullName,
         password,
         email,
-
+        profileImage: profileImageUpload.secure_url,
+        coverImage:coverImageUpload.secure_url
     })
 
     if(!newUser){
