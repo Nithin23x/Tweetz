@@ -6,7 +6,8 @@ import { upload } from "../middlewares/multer.middelware.js";
 const userRouter = Router()
 
 userRouter.route("/register").post(
-    upload.fields([
+    upload.fields([ //multer injected as a middleware 
+        //upload.fields() catches it as a "name" in form and also can upload multiple files with maxCount.
         {
             name:"profileImage", maxCount:1
         },{

@@ -61,9 +61,6 @@ export const registerUser =  asyncHandler( async(req,res) =>{
     const profileImageUpload = await cloudUpload(profileLocalPath)
     const coverImageUpload = await cloudUpload(coverLocalPath)
 
-    console.log("\n Profile Upload",profileImageUpload)
-
-
     const newUser = await  User.create({ // await because DB is takes time for processing 
         username,
         fullName,
