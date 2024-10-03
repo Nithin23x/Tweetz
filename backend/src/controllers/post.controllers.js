@@ -129,7 +129,7 @@ export const likeUnlikePost = asyncHandler(async(req,res) =>{
 })
 
 export const getAllPosts = asyncHandler( async() =>{
-	const posts = await Post.find()
+	const posts = await Post.find()  //post.find() returns all the posts 
 			.sort({ createdAt: -1 })
 			.populate({
 				path: "user",
@@ -165,79 +165,85 @@ export const getAllPosts = asyncHandler( async() =>{
 	
 })
 
-export const getLikedPosts = async (req, res) => {
-	const userId = req.params.id;
+export const getLikedPosts = asyncHandler(async(req,res) =>{
+	//1.get the userId from params
+	// 2.check if user exists or not 
+	// 3.find the posts according to the likedPosts array.In that we have array of post id's 
+	//finding of posts is done by the $in method 
 
-	try {
-		const user = await User.findById(userId);
-		if (!user) return res.status(404).json({ error: "User not found" });
+	const {userId} = req.params
+	const user = await User.findById(userId)
+	if(!user) {throw new  ApiError(404,"User not found" )}
 
-		const likedPosts = await Post.find({ _id: { $in: user.likedPosts } })
-			.populate({
-				path: "user",
-				select: "-password",
-			})
-			.populate({
-				path: "comments.user",
-				select: "-password",
-			});
+	//here in find() we are finding all the posts based on _id and that _id is in likedpost[] of user so we need to get that _id's, we used $in operator
+	//note:- Post.find() returns all the posts in collection
+	//note :- Post.find().sort({createdAt:-1}) returns all the posts in collection which are created recent order
+	//note :- Post.find({_id}) //searhed based on _id given to it , in the same way Post.find({user}) finds the based on user 
 
-		res.status(200).json(likedPosts);
-	} catch (error) {
-		console.log("Error in getLikedPosts controller: ", error);
-		res.status(500).json({ error: "Internal server error" });
-	}
-};
+	const userLikedPost = await Post.find({_id : {$in : user.likedPosts}}).populate(
+		{
+			path:"user",
+			select:"-password"
+		}).populate(
+			{
+				path:"comments.user",
+				select:"-password"
+			}
+		)
+	
 
-export const getFollowingPosts = async (req, res) => {
-	try {
-		const userId = req.user._id;
-		const user = await User.findById(userId);
-		if (!user) return res.status(404).json({ error: "User not found" });
-
-		const following = user.following;
-
-		const feedPosts = await Post.find({ user: { $in: following } })
-			.sort({ createdAt: -1 })
-			.populate({
-				path: "user",
-				select: "-password",
-			})
-			.populate({
-				path: "comments.user",
-				select: "-password",
-			});
-
-		res.status(200).json(feedPosts);
-	} catch (error) {
-		console.log("Error in getFollowingPosts controller: ", error);
-		res.status(500).json({ error: "Internal server error" });
-	}
-};
-
-export const getUserPosts = async (req, res) => {
-	try {
-		const { username } = req.params;
-
-		const user = await User.findOne({ username });
-		if (!user) return res.status(404).json({ error: "User not found" });
-
-		const posts = await Post.find({ user: user._id })
-			.sort({ createdAt: -1 })
-			.populate({
-				path: "user",
-				select: "-password",
-			})
-			.populate({
-				path: "comments.user",
-				select: "-password",
-			});
-
-		res.status(200).json(posts);
-	} catch (error) {
-		console.log("Error in getUserPosts controller: ", error);
-		res.status(500).json({ error: "Internal server error" });
-	}
-};
+	return res.status(200).json(
+		new ApiResponse(200,userLikedPost,"liked posts of the user")
+	)
 
 
+})
+
+
+export const getFollowingPosts = asyncHandler( async(req,res) => {
+	//get the posts of the users that current(jwt-verify) users follows
+
+	const userId = req.user._id
+	const userExists = await User.findById(userId)
+	if(!userExists) {throw new ApiError(404,"User not found")}
+
+	//finding the posts based on following of the current users,so we pass user.following in find()
+
+	const followingPosts = await Post.find({user: {$in : userExists.following}}).sort({createdAt:-1}).populate(
+		{
+			path:"user",
+			select:"-password"
+			
+		}
+	).populate({
+		path:"comments.user",
+		select:"-password"
+	})
+
+	return res.status(200).json(
+		new ApiResponse(200,followingPosts,"Feed posts")
+	)
+
+})
+
+export const getUserPosts = asyncHandler( async() =>{
+	const {username} = req.params
+	const userExists = await User.findOne({username})
+
+	if(!userExists) {throw new ApiError(404,"User not found")}
+	
+	const userPosts = await Post.find({user: userExists._id}).sort({createdAt:-1}).populate(
+		{
+			path:"user",
+			select:"-password"
+			
+		}
+	).populate({
+		path:"comments.user",
+		select:"-password"
+	})
+
+	return res.status(200).json(
+		new ApiResponse(200,userPosts,`fetched posts of ${username}`)
+	)
+})
