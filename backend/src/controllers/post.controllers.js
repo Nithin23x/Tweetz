@@ -1,3 +1,4 @@
+import { Notification } from "../models/notification.model.js";
 import { Post } from "../models/post.model.js";
 import { User } from "../models/user.models.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -79,9 +80,8 @@ export const commentOnPost = async (req, res) => {
 
 		const comment = { user: userId, text };
 
-		// post.comments.push(comment);
-		post.comments.push(comment)
-		await post.save({validateBeforeSave:false});
+		post.comments.push(comment) //pushing the comment(obj) into comment array 
+		await post.save({validateBeforeSave:false}); //saving it without triggering any validation(s) hooks like "save"
 
 		res.status(200).json(post);
 	} catch (error) {
@@ -90,10 +90,10 @@ export const commentOnPost = async (req, res) => {
 	}
 };
 
-export const likeUnlikePost = async (req, res) => {
-	try {
-		const userId = req.user._id;
-		const { id: postId } = req.params;
+export const likeUnlikePost = asyncHandler(async(req,res) =>{
+	
+		const userId = req.user._id; //from jwtverification
+		const {  postId } = req.params;  //from params :/postId
 
 		const post = await Post.findById(postId);
 
@@ -101,40 +101,35 @@ export const likeUnlikePost = async (req, res) => {
 			return res.status(404).json({ error: "Post not found" });
 		}
 
-		const userLikedPost = post.likes.includes(userId);
+		const userLikedPost = post.likes.includes(userId); //checking if user liked post 
 
-		if (userLikedPost) {
+		if (userLikedPost) { //if user already liked then unlike post
 			// Unlike post
-			await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
-			await User.updateOne({ _id: userId }, { $pull: { likedPosts: postId } });
+			await Post.findByIdAndUpdate(postId, {$pull:{likes:userId}})
+			await User.findByIdAndUpdate(userId, {$pull:{likedPosts:postId}}) 
 
 			const updatedLikes = post.likes.filter((id) => id.toString() !== userId.toString());
 			res.status(200).json(updatedLikes);
 		} else {
 			// Like post
-			post.likes.push(userId);
-			await User.updateOne({ _id: userId }, { $push: { likedPosts: postId } });
-			await post.save();
+			post.likes.push(userId)
+			await User.findByIdAndUpdate(userId, {$push :{likedPosts:postId}})
+			await post.save({validateBeforeSave:false})
 
-			const notification = new Notification({
-				from: userId,
-				to: post.user,
-				type: "like",
-			});
-			await notification.save();
+			const notification = await Notification.create({
+				from:userId,
+				to:post.user,
+				type:"Like"
+			})
 
 			const updatedLikes = post.likes;
-			res.status(200).json(updatedLikes);
+			return res.status(200).json(updatedLikes);
 		}
-	} catch (error) {
-		console.log("Error in likeUnlikePost controller: ", error);
-		res.status(500).json({ error: "Internal server error" });
-	}
-};
+	
+})
 
-export const getAllPosts = async (req, res) => {
-	try {
-		const posts = await Post.find()
+export const getAllPosts = asyncHandler( async() =>{
+	const posts = await Post.find()
 			.sort({ createdAt: -1 })
 			.populate({
 				path: "user",
@@ -148,13 +143,27 @@ export const getAllPosts = async (req, res) => {
 		if (posts.length === 0) {
 			return res.status(200).json([]);
 		}
+	const allPosts = await Post.find().sort({createdAt:-1}).populate( //populate it's a extension of a object in the DB
+		{
+			path:"user",
+			select:"-password"
+		},
+		{
+			path:"comments.user",
+			select:"-password"
+		}
 
-		res.status(200).json(posts);
-	} catch (error) {
-		console.log("Error in getAllPosts controller: ", error);
-		res.status(500).json({ error: "Internal server error" });
+	)
+	if(allPosts.length === 0){
+		return res.status(200).json([])
 	}
-};
+ 
+
+	return res.status(200).json(
+		new ApiResponse(200,allPosts,"Posts fetched")
+	);
+	
+})
 
 export const getLikedPosts = async (req, res) => {
 	const userId = req.params.id;

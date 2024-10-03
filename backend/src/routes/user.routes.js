@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerUser,loginUser,logoutUser, getMe } from "../controllers/user.controller.js";
+import { registerUser,loginUser,logoutUser, getMe, changeCurrentPassword, updateAccountDetails } from "../controllers/user.controller.js";
 import { jwtVerification } from "../middlewares/jwtVerification.js";
 import { upload } from "../middlewares/multer.middelware.js";
 
@@ -19,6 +19,7 @@ userRouter.route("/register").post(
 userRouter.route("/login").post( loginUser)
 userRouter.route("/logout").post(jwtVerification,logoutUser)
 userRouter.route("/getMe").get(jwtVerification,getMe)
-
+userRouter.route("/changepassword").post(jwtVerification,changeCurrentPassword)
+userRouter.route("/update").post(jwtVerification,updateAccountDetails) 
 
 export {userRouter}

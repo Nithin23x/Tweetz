@@ -164,3 +164,53 @@ export const getMe = asyncHandler( async(req,res) =>{
         new ApiResponse(200,getUser,"User fetched")
     )
 })
+
+export const changeCurrentPassword = asyncHandler(async(req,res ) =>{
+    const {oldPassword,newPassword} = req.body
+
+    //checking the old password tru or not 
+    const user = await User.findById(req.user?._id)
+    const isPasswordCorrect = user.isPasswordCorrect(oldPassword)
+
+    if(!isPasswordCorrect) {
+        throw new ApiError(400,"Invalid Password")
+    }
+
+    user.password = newPassword
+    await user.save({validateModifiedOnly})
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,{},"New Password set")
+    )
+})
+
+export const updateAccountDetails = asyncHandler(async(req,res) =>{
+    //advice:- for any updates relating to files we need to 
+    //handle them in separate controllers to reduce the network bandwidth and faster,reliable upadates 
+
+    const {fullName,email} = req.body // u can also update profile and cover image
+
+    if(!(fullName || email )){
+        throw new ApiError(400,"All fields are required ")
+    }
+
+    const updatedUser = User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set:{
+                fullName,email
+            }
+        },
+        {
+            new:true  //this will enable the new savings made to the user
+        }
+    ).select("-password")
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,updatedUser,"Account updated Successfully")
+    )
+})
