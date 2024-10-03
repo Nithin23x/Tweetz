@@ -32,7 +32,7 @@ export const registerUser =  asyncHandler( async(req,res) =>{
     //Global Rule Use "await" whenever there is DB call 
 
     //1.Get the data from the req.body 
-    const{email,fullName,username,password,profileImage,coverImage} = req.body
+    const{email,fullName,username,password} = req.body
 
     console.log(email,fullName)
     

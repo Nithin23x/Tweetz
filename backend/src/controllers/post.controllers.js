@@ -4,6 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { cloudUpload } from "../utils/cloudinary.js";
+import { v2 as cloudinary } from "cloudinary";
 
 export const createPost = asyncHandler(async(req,res) =>{
     //creating the post 
@@ -49,7 +50,7 @@ export const deletePost = asyncHandler(async(req,res) =>{
     }
 
     if (findPost.postImage) {
-        const imgId = findPost.postImage.split("/").pop().split(".")[0]; //deleting the post from cloudinary 
+        const imgId = findPost.postImage.split("/").pop().split(".")[0]; //deleting the post in cloudinary with id
         await cloudinary.uploader.destroy(imgId);
     }
 
@@ -64,7 +65,7 @@ export const deletePost = asyncHandler(async(req,res) =>{
 export const commentOnPost = async (req, res) => {
 	try {
 		const { text } = req.body;
-		const postId = req.params.postId;
+		const {postId} = req.params;
 		const userId = req.user._id;
 
 		if (!text) {
@@ -78,7 +79,8 @@ export const commentOnPost = async (req, res) => {
 
 		const comment = { user: userId, text };
 
-		post.comments.push(comment);
+		// post.comments.push(comment);
+		post.comments.push(comment)
 		await post.save({validateBeforeSave:false});
 
 		res.status(200).json(post);

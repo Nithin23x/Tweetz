@@ -5,6 +5,7 @@ import { upload } from "../middlewares/multer.middelware.js";
 
 const userRouter = Router()
 
+//sub-routes for "/api/v1/user"
 userRouter.route("/register").post(
     upload.fields([ //multer injected as a middleware 
         //upload.fields() catches it as a "name" in form and also can upload multiple files with maxCount.

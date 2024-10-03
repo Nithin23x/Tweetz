@@ -7,5 +7,4 @@ const appRouter = Router()
 appRouter.route("/getProfile/:username").get(jwtVerification,getUserProfile);
 appRouter.route("/follow/:userId").get(jwtVerification,followUnfollowuser) 
 
-
 export  {appRouter}

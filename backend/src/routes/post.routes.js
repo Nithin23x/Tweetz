@@ -11,9 +11,13 @@ postRouter.route("/create").post(jwtVerification,
     {name:"postImage", maxCount:3} 
    ]), createPost) //local uploading through multer
 
-postRouter.route("/deletepost/:postId").post(jwtVerification,deletePost)
+//:postId is params common for controllers deletePost,likePost,commentOnPost
+
+postRouter.route("/delete/:postId").delete(jwtVerification,deletePost)
 postRouter.route("/likepost/:postId").post(jwtVerification,likeUnlikePost)
 postRouter.route("/comment/:postId").post(jwtVerification,commentOnPost)
 postRouter.route("/getposts").get(jwtVerification,getAllPosts)
 postRouter.route("/liked/:postId").get(jwtVerification,getLikedPosts)
 postRouter.route("/following").get(jwtVerification,getFollowingPosts)
+
+export {postRouter}

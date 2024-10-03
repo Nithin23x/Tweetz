@@ -11,7 +11,6 @@ export const getUserProfile = asyncHandler( async(req,res) =>{
 
     if(!userProfile) {
         throw new ApiError(400,"User not found")
-        res.json("User not found ")
     }
 
     res.status(200)
