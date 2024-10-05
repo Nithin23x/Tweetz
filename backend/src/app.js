@@ -20,10 +20,12 @@ app.use(cookieParser()) //to enable cookie operations like setCookie and clearCo
 import { userRouter } from './routes/user.routes.js'
 import { appRouter } from './routes/app.routes.js'
 import { postRouter } from './routes/post.routes.js'
+import { notificationRouter } from './routes/notification.routes.js'
 
 
 app.use("/api/v1/users",userRouter)  // api/v1 is route ans userRouter routing section re-direct to controllers 
 app.use("/api/v1/app",appRouter) 
 app.use("/api/v1/posts",postRouter) 
+app.use("/api/v1/notifications", notificationRouter) 
 
 export {app} 
