@@ -16,9 +16,9 @@ userRouter.route("/register").post(
         }
     ]),
     registerUser)  // here we are giving each controllers for every sub-user routes 
-userRouter.route("/login").post( loginUser)
+userRouter.route("/login").post( loginUser) 
 userRouter.route("/logout").post(jwtVerification,logoutUser)
-userRouter.route("/getMe").get(jwtVerification,getMe)
+userRouter.route("/getMe").get(jwtVerification,getMe) //only login users can access the website it is going to be useful in routing for frontend.
 userRouter.route("/changepassword").post(jwtVerification,changeCurrentPassword)
 userRouter.route("/update").post(jwtVerification,updateAccountDetails) 
 

@@ -91,17 +91,18 @@ export const loginUser = asyncHandler(async(req,res) =>{
     //5.generate the access and refresh token 
 
     //1.Get the data 
-    const {username,email,password} = req.body
+    const {username,password} = req.body
+
+    console.log(username , password)
 
     //2.Checking the data 
-    if([username,email,password].some(eachField => eachField.trim()==="")) {
+    if([username,password].some(eachField => eachField.trim()==="")) {
         throw new ApiError(400,"All fields are required")
     }
 
     //3.check if username or email exists in DB
-    const existedUser = await  User.findOne({ //findOne returns one doc relating to the username/email
-        $or :[{username},{email}]
-    })
+    const existedUser = await  User.findOne({ username//findOne returns one doc relating to the username/email
+    }) ;
 
     if(!existedUser) {
         throw new ApiError(400,"User not found")
@@ -113,11 +114,15 @@ export const loginUser = asyncHandler(async(req,res) =>{
     //5.Generate Access Token 
     //Send the _id to the generateAccessAndRefreshToken()
     const{accessToken ,refreshToken} = await  generateAccessAndRefreshToken(existedUser._id)
-    console.log(accessToken,refreshToken) 
+    const cookieOptions = {
+        httpOnly:true,
+        secure:true
+    }
+    console.log(accessToken,refreshToken,"Access and Refresh Token") 
 
     res.status(200)
-    .cookie("accessToken", accessToken)
-    .cookie("refreshToken",refreshToken)
+    .cookie("accessToken", accessToken,cookieOptions)
+    .cookie("refreshToken",refreshToken,cookieOptions)
     .json(
         new ApiResponse(200, {refreshToken},"Success")
     )

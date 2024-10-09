@@ -19,7 +19,8 @@ const HomePage = () => {
 					>
 						For you
 						{feedType === "forYou" && (
-							<div className='absolute bottom-0 w-10  h-1 rounded-full bg-primary'></div>
+							<div className='absolute bottom-0 w-10  h-1 rounded-full bg-primary'></div> // underlining blue color line 
+							//if feedtype is equal to its counterpart then it is enabled.
 						)}
 					</div>
 					<div
@@ -28,7 +29,7 @@ const HomePage = () => {
 					>
 						Following
 						{feedType === "following" && (
-							<div className='absolute bottom-0 w-10  h-1 rounded-full bg-primary'></div>
+							<div className='absolute bottom-0 w-10  h-1 rounded-full bg-primary'></div> // underlining blue color line 
 						)}
 					</div>
 				</div>
@@ -37,7 +38,7 @@ const HomePage = () => {
 				<CreatePost />
 
 				{/* POSTS */}
-				<Posts feedType={feedType} />
+				<Posts feedType={feedType} /> {/* sending feedtype as props  */}
 			</div>
 		</>
 	);

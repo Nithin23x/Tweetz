@@ -14,29 +14,27 @@ import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "./components/common/LoadingSpinner";
 
 function App() {
-	const { data: authUser, isLoading } = useQuery({
-		// we use queryKey to give a unique name to our query and refer to it later
-		queryKey: ["authUser"],
-		queryFn: async () => {
+	const{data:authUser,isLoading} = useQuery({
+		queryKey:["authUser"] , //we assign a queryKey to use it later anywhere. just by refering this queryKey.
+		queryFn : async() => {
 			try {
-				const res = await fetch("/api/auth/me");
-				const data = await res.json();
-				if (data.error) return null;
-				if (!res.ok) {
-					throw new Error(data.error || "Something went wrong");
-				}
-				console.log("authUser is here:", data);
-				return data;
+				const response = await fetch("/api/v1/users/getme");
+				const data = await response.json()
+
+				if(data.error) return null ; //if data  contains error obj then return null because user not loggedIn.
+				
+				return data  ;
+
 			} catch (error) {
-				throw new Error(error);
+				throw new Error(error)
 			}
 		},
-		retry: false,
-	});
+		retry:false , //if query fails then it will not refetch infinitely 
+	})
 
 	if (isLoading) {
 		return (
-			<div className='h-screen flex justify-center items-center'>
+			<div className='h-screen flex justify-center items-center'>  {/* spinner element while the data is loading given default by useQuery  */}
 				<LoadingSpinner size='lg' />
 			</div>
 		);
@@ -45,10 +43,10 @@ function App() {
 	return (
 		<div className='flex max-w-6xl mx-auto'>
 			{/* Common component, bc it's not wrapped with Routes */}
-			{authUser && <Sidebar />}
+			{authUser && <Sidebar />}  {/*if auth user exists then execute Sidebar component */}
 			<Routes>
 				<Route path='/' element={authUser ? <HomePage /> : <Navigate to='/login' />} />
-				<Route path='/login' element={!authUser ? <LoginPage /> : <Navigate to='/' />} />
+				<Route path='/login' element={!authUser ? <LoginPage /> : <Navigate to='/' />} /> 
 				<Route path='/signup' element={!authUser ? <SignUpPage /> : <Navigate to='/' />} />
 				<Route path='/notifications' element={authUser ? <NotificationPage /> : <Navigate to='/login' />} />
 				<Route path='/profile/:username' element={authUser ? <ProfilePage /> : <Navigate to='/login' />} />

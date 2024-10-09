@@ -10,7 +10,7 @@ app.use(cors({ //CORS - Cross Origin Resource Sharing
     credentials:true
 }))
 
-app.use(express.json({limit:"50kb"})) //to parse the req.body into json format 
+app.use(express.json({limit:"500kb"})) //to parse the req.body into json format 
 app.use(express.urlencoded({limit:"500kb",extended:true}))  //urlencoded() is a method  to recognize the incoming Request Object as strings or arrays
 app.use(express.static('public')) //to load the html files in public folder
 app.use(cookieParser()) //to enable cookie operations like setCookie and clearCookie 

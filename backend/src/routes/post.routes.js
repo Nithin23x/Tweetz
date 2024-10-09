@@ -8,7 +8,7 @@ const postRouter = Router()
 //routes 
 postRouter.route("/create").post(jwtVerification,
    upload.fields([
-    {name:"postImage", maxCount:3} 
+    {name:"postImage", maxCount:1} 
    ]), createPost) //local uploading through multer
 
 //:postId is params common for controllers deletePost,likePost,commentOnPost
