@@ -64,9 +64,9 @@ export const deletePost = asyncHandler(async(req,res) =>{
 
 export const commentOnPost = async (req, res) => {
 	try {
-		const { text } = req.body;
-		const {postId} = req.params;
-		const userId = req.user._id;
+		const { text } = req.body; console.log("\n Comment text", text ,"\n")
+		const {postId} = req.params; console.log("post Id", postId)
+		const userId = req.user._id; 
 
 		if (!text) {
 			return res.status(400).json({ error: "Text field is required" });
@@ -91,8 +91,10 @@ export const commentOnPost = async (req, res) => {
 
 export const likeUnlikePost = asyncHandler(async(req,res) =>{
 	
-		const userId = req.user._id; //from jwtverification
+		const userId = req.user._id; //from jwtverification 
+		console.log("Like post " , userId)
 		const {  postId } = req.params;  //from params :/postId
+		console.log("likepost ", postId) ;
 
 		const post = await Post.findById(postId);
 
@@ -101,6 +103,7 @@ export const likeUnlikePost = asyncHandler(async(req,res) =>{
 		}
 
 		const userLikedPost = post.likes.includes(userId); //checking if user liked post 
+		console.log("userLikedPost",userLikedPost);
 
 		if (userLikedPost) { //if user already liked then unlike post
 			// Unlike post
@@ -115,48 +118,23 @@ export const likeUnlikePost = asyncHandler(async(req,res) =>{
 			await User.findByIdAndUpdate(userId, {$push :{likedPosts:postId}})
 			await post.save({validateBeforeSave:false})
 
-			const notification = await Notification.create({
-				from:userId,
-				to:post.user,
-				type:"Like"
-			})
+			// const notification = await Notification.create({
+			// 	from:userId,
+			// 	to:post.user,
+			// 	type:"like"
+			// })
 
-			const updatedLikes = post.likes;
+			const updatedLikes =  post.likes;
+			console.log(updatedLikes);
 			return res.status(200).json(updatedLikes);
 		}
 	
 })
 
-export const getAllPosts = asyncHandler( async() =>{
-	const posts = await Post.find()  //post.find() returns all the posts 
-			.sort({ createdAt: -1 })
-			.populate({
-				path: "user",
-				select: "-password",
-			})
-			.populate({
-				path: "comments.user",
-				select: "-password",
-			});
-
-		if (posts.length === 0) {
-			return res.status(200).json([]);
-		}
-	const allPosts = await Post.find().sort({createdAt:-1}).populate( //populate it's a extension of a object in the DB
-		{
-			path:"user",
-			select:"-password"
-		},
-		{
-			path:"comments.user",
-			select:"-password"
-		}
-
-	)
-	if(allPosts.length === 0){
-		return res.status(200).json([])
-	}
- 
+export const getAllPosts = asyncHandler( async(req,res) =>{
+	console.log("All posts reached ");
+	const allPosts = await Post.find().sort({createdAt:-1}).populate({path:"user", select:"username profileImage fullName"}).populate({path:"comments.user", select:"username fullName profileImage"}) ;
+	console.log(allPosts) ;
 
 	return res.status(200).json(
 		new ApiResponse(200,allPosts,"Posts fetched")

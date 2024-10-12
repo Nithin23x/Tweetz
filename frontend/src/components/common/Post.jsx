@@ -13,19 +13,27 @@ import { formatPostDate } from "../../utils/date";
 
 const Post = ({ post }) => {
 	const [comment, setComment] = useState("");
-	const { data: authUser } = useQuery({ queryKey: ["authUser"] });
-	const queryClient = useQueryClient();
-	const postOwner = post.user;
-	const isLiked = post.likes.includes(authUser._id);
+	console.log("Each Post",post);
 
-	const isMyPost = authUser._id === post.user._id;
+	const { data: authUser } =  useQuery({ queryKey: ["authUser"] }); //getting loggedIn user data.
+	console.log(authUser, "Auth user at post ") ;
+
+	const queryClient = useQueryClient();
+	const isLiked = authUser?.data.likedPosts.includes(post._id)
+	//console.log("isalreadyLiked",isalreadyLiked);
+
+	const postOwner = post.user; //owner of the post 
+
+	
+	const isMyPost = authUser.data._id === post.user._id;//my post 
+	console.log("Ismypost " , isMyPost) ;
 
 	const formattedDate = formatPostDate(post.createdAt);
 
 	const { mutate: deletePost, isPending: isDeleting } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await fetch(`/api/posts/${post._id}`, {
+				const res = await fetch(`/api/v1/posts/delete/${post._id}`, { 
 					method: "DELETE",
 				});
 				const data = await res.json();
@@ -44,16 +52,17 @@ const Post = ({ post }) => {
 		},
 	});
 
-	const { mutate: likePost, isPending: isLiking } = useMutation({
+	const { mutate: likePost , isPending: isLiking } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await fetch(`/api/posts/like/${post._id}`, {
+				const res = await fetch(`/api/v1/posts/likepost/${post._id}`, {
 					method: "POST",
 				});
 				const data = await res.json();
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong");
 				}
+				console.log(data, "Mutate likes ") ;
 				return data;
 			} catch (error) {
 				throw new Error(error);
@@ -64,9 +73,11 @@ const Post = ({ post }) => {
 			// queryClient.invalidateQueries({ queryKey: ["posts"] });
 
 			// instead, update the cache directly for that post
+			console.log("On Success", updatedLikes);
 			queryClient.setQueryData(["posts"], (oldData) => {
 				return oldData.map((p) => {
 					if (p._id === post._id) {
+						console.log("Refetching posts on account of likes ");
 						return { ...p, likes: updatedLikes };
 					}
 					return p;
@@ -81,7 +92,7 @@ const Post = ({ post }) => {
 	const { mutate: commentPost, isPending: isCommenting } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await fetch(`/api/posts/comment/${post._id}`, {
+				const res = await fetch(`/api/v1/posts/comment/${post._id}`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -128,7 +139,7 @@ const Post = ({ post }) => {
 			<div className='flex gap-2 items-start p-4 border-b border-gray-700'>
 				<div className='avatar'>
 					<Link to={`/profile/${postOwner.username}`} className='w-8 rounded-full overflow-hidden'>
-						<img src={postOwner.profileImg || "/avatar-placeholder.png"} />
+						<img src={postOwner.profileImage || "/avatar-placeholder.png"} />
 					</Link>
 				</div>
 				<div className='flex flex-col flex-1'>
@@ -152,10 +163,10 @@ const Post = ({ post }) => {
 						)}
 					</div>
 					<div className='flex flex-col gap-3 overflow-hidden'>
-						<span>{post.text}</span>
-						{post.img && (
+						<span>{post.caption}</span>
+						{post.postImage && (
 							<img
-								src={post.img}
+								src={post.postImage}
 								className='h-80 object-contain rounded-lg border border-gray-700'
 								alt=''
 							/>
@@ -187,7 +198,7 @@ const Post = ({ post }) => {
 												<div className='avatar'>
 													<div className='w-8 rounded-full'>
 														<img
-															src={comment.user.profileImg || "/avatar-placeholder.png"}
+															src={comment.user.profileImage || "/avatar-placeholder.png"}
 														/>
 													</div>
 												</div>
