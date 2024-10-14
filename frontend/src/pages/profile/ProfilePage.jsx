@@ -11,15 +11,15 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { useQuery } from "@tanstack/react-query";
+import { QueryClient, queryOptions, useQuery } from "@tanstack/react-query";
 import { formatMemberSinceDate } from "../../utils/date";
 
 import useFollow from "../../hooks/useFollow";
 import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
 
 const ProfilePage = () => {
-	const [coverImg, setCoverImg] = useState(null);
-	const [profileImg, setProfileImg] = useState(null);
+	const [coverImage, setCoverImg] = useState(null);
+	const [profileImage, setProfileImg] = useState(null);
 	const [feedType, setFeedType] = useState("posts");
 
 	const coverImgRef = useRef(null);
@@ -39,13 +39,13 @@ const ProfilePage = () => {
 		queryKey: ["userProfile"],
 		queryFn: async () => {
 			try {
-				const res = await fetch(`api/v1/app/getProfile/${username}`);
+				const res = await fetch(`/api/v1/app/getProfile/${username}`);
 				const data = await res.json();
-				console.log("userdata",data )
+				console.log("userdata",data?.data )
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong");
 				}
-				return data;
+				return data?.data;
 			} catch (error) {
 				throw new Error(error);
 			}
@@ -53,10 +53,13 @@ const ProfilePage = () => {
 	});
 
 	const { isUpdatingProfile, updateProfile } = useUpdateUserProfile();
+	console.log("Auth User", authUser);
 
-	const isMyProfile = authUser._id === user?._id;
+	const isMyProfile = authUser.data?._id === user?._id;
 	const memberSinceDate = formatMemberSinceDate(user?.createdAt);
-	const amIFollowing = authUser?.following.includes(user?._id);
+	const authFollow = authUser.data;
+	const amIFollowing = authFollow.following?.includes(user?._id);
+	console.log("Iam folllowing ", amIFollowing);
 
 	const handleImgChange = (e, state) => {
 		const file = e.target.files[0];
@@ -72,7 +75,7 @@ const ProfilePage = () => {
 
 	useEffect(() => {
 		refetch();
-	}, [username, refetch]);
+	}, [username, refetch]); //if params(username) is changed then refetch. 
 
 	return (
 		<>
@@ -95,7 +98,7 @@ const ProfilePage = () => {
 							{/* COVER IMG */}
 							<div className='relative group/cover'>
 								<img
-									src={coverImg || user?.coverImg || "/cover.png"}
+									src={ user?.coverImage || "/cover.png"}
 									className='h-52 w-full object-cover'
 									alt='cover image'
 								/>
@@ -125,7 +128,7 @@ const ProfilePage = () => {
 								{/* USER AVATAR */}
 								<div className='avatar absolute -bottom-16 left-4'>
 									<div className='w-32 rounded-full relative group/avatar'>
-										<img src={profileImg || user?.profileImg || "/avatar-placeholder.png"} />
+										<img src={user?.profileImage || "/avatar-placeholder.png"} />
 										<div className='absolute top-5 right-3 p-1 bg-primary rounded-full group-hover/avatar:opacity-100 opacity-0 cursor-pointer'>
 											{isMyProfile && (
 												<MdEdit
@@ -149,11 +152,11 @@ const ProfilePage = () => {
 										{!isPending && !amIFollowing && "Follow"}
 									</button>
 								)}
-								{(coverImg || profileImg) && (
+								{(coverImage || profileImage) && (
 									<button
 										className='btn btn-primary rounded-full btn-sm text-white px-4 ml-2'
 										onClick={async () => {
-											await updateProfile({ coverImg, profileImg });
+											await updateProfile({ coverImage, profileImage });
 											setProfileImg(null);
 											setCoverImg(null);
 										}}
@@ -225,7 +228,6 @@ const ProfilePage = () => {
 							</div>
 						</>
 					)}
-
 					<Posts feedType={feedType} username={username} userId={user?._id} />
 				</div>
 			</div>

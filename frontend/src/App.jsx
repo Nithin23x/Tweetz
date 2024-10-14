@@ -20,8 +20,6 @@ function App() {
 			try {
 				const response = await fetch("/api/v1/users/getme");
 				const data = await response.json()
-				console.log("App refetched ") ;
-
 				if(data.error) return null ; //if data  contains error obj then return null because user not loggedIn.
 				
 				return data  ;

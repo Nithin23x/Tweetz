@@ -19,8 +19,8 @@ const Post = ({ post }) => {
 	console.log(authUser, "Auth user at post ") ;
 
 	const queryClient = useQueryClient();
-	const isLiked = authUser?.data.likedPosts.includes(post._id)
-	//console.log("isalreadyLiked",isalreadyLiked);
+	const isLiked = post.likes.includes(authUser.data._id) ; 
+	console.log("isalreadyLiked",isLiked);
 
 	const postOwner = post.user; //owner of the post 
 

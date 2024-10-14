@@ -19,9 +19,10 @@ export const getNotifications = asyncHandler(async(req,res) => {
 
 })
 
-export const deleteNotifications = asyncHandler(async() => {
+export const deleteNotifications = asyncHandler(async(req,res) => {
     const userId = req.user._id
-    await Notification.deleteMany({to:userId})
-
+    await Notification.deleteMany({to:userId}) //i.e we delete all notifications recieved("to" in model) by the user...
+    //deleteMany() deletes every object given as query.
+    
     res.status(200).json({message:"Notifications Deleted"})
-})
+});

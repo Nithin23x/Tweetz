@@ -11,12 +11,13 @@ const RightPanel = () => {
 		queryKey: ["suggestedUsers"],
 		queryFn: async () => {
 			try {
-				const res = await fetch("/api/users/suggested");
+				const res = await fetch("/api/v1/app/suggested");
 				const data = await res.json();
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong!");
 				}
-				return data;
+				console.log(data , "suggested Users ");
+				return data?.data;
 			} catch (error) {
 				throw new Error(error.message);
 			}
@@ -51,7 +52,7 @@ const RightPanel = () => {
 								<div className='flex gap-2 items-center'>
 									<div className='avatar'>
 										<div className='w-8 rounded-full'>
-											<img src={user.profileImg || "/avatar-placeholder.png"} />
+											<img src={user.profileImage || "/avatar-placeholder.png"} />
 										</div>
 									</div>
 									<div className='flex flex-col'>

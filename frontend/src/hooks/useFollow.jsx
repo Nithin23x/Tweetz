@@ -7,24 +7,25 @@ const useFollow = () => {
 	const { mutate: follow, isPending } = useMutation({
 		mutationFn: async (userId) => {
 			try {
-				const res = await fetch(`/api/users/follow/${userId}`, {
+				const res = await fetch(`/api/v1/app/follow/${userId}`, {
 					method: "POST",
 				});
 
 				const data = await res.json();
+				console.log("follow data", data );
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong!");
 				}
-				return;
+				return data?.data; 
 			} catch (error) {
 				throw new Error(error.message);
 			}
 		},
 		onSuccess: () => {
-			Promise.all([
-				queryClient.invalidateQueries({ queryKey: ["suggestedUsers"] }),
-				queryClient.invalidateQueries({ queryKey: ["authUser"] }),
-			]);
+			console.log("Refetching queries")
+			queryClient.invalidateQueries({queryKey:"authUser"});
+			queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+			queryClient.invalidateQueries({ queryKey: ["suggestedUsers"] });
 		},
 		onError: (error) => {
 			toast.error(error.message);

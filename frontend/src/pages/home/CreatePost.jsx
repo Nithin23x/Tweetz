@@ -23,6 +23,7 @@ const CreatePost = () => {
 		mutationFn: async ({ text, img }) => {
 			console.log(img) ;
 			try {
+				if(!img) {img === ""} ;
 				const res = await fetch("/api/v1/posts/create", {
 					method: "POST",
 					headers: {
@@ -31,7 +32,7 @@ const CreatePost = () => {
 					body: JSON.stringify({ text, img }),
 				});
 				const data = await res.json();
-				console.log(data , "Create post ")
+				console.log(data , "Create post ");
 				return data;
 			} catch (error) {
 				throw new Error(error);

@@ -9,6 +9,7 @@ import { v2 as cloudinary } from "cloudinary";
 
 export const createPost = asyncHandler(async(req,res) =>{
     //creating the post 
+	//so the post must contain both caption and image !!!
 	const {text:caption , img:postImageLocalPath} = req.body;
     const userId = req.user._id.toString() //getting the deatils of authenticated user 
 
@@ -26,7 +27,7 @@ export const createPost = asyncHandler(async(req,res) =>{
     const newPost = await Post.create({
         user:userId,
         caption,
-        postImage:postImageUpload.secure_url
+        postImage:postImageUpload.secure_url || ""
     })
 
    if(!newPost){
@@ -118,11 +119,13 @@ export const likeUnlikePost = asyncHandler(async(req,res) =>{
 			await User.findByIdAndUpdate(userId, {$push :{likedPosts:postId}})
 			await post.save({validateBeforeSave:false})
 
-			// const notification = await Notification.create({
-			// 	from:userId,
-			// 	to:post.user,
-			// 	type:"like"
-			// })
+
+			const notification = await Notification.create({
+				from:userId,
+				to:post.user,
+				type:"like"
+			});
+			await notification.save({validateBeforeSave:false});
 
 			const updatedLikes =  post.likes;
 			console.log(updatedLikes);
@@ -203,7 +206,7 @@ export const getFollowingPosts = asyncHandler( async(req,res) => {
 
 })
 
-export const getUserPosts = asyncHandler( async() =>{
+export const getUserPosts = asyncHandler( async(req,res) =>{
 	const {username} = req.params
 	const userExists = await User.findOne({username})
 

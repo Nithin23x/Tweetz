@@ -27,11 +27,11 @@ export const followUnfollowuser = asyncHandler( async(req,res) =>{
     const {_id,username,email,followers,following} = req.user //current user 
     
     if(userId === req.user._id.toString()) {
-         res.json({message : "U cant follow urself "})
-        throw new ApiError(400,"You can't follow urself") 
+        return res.json({message : "U cant follow urself "});
+        
     }
 
-    const userToModify = await User.findById(userId)
+    //const userToModify = await User.findById(userId)
     
     const isFollowing = following.includes(userId)  //current user following[] contains userId or not 
 
@@ -81,6 +81,8 @@ export const getSuggestedusers = asyncHandler( async(req,res) => {
     //removing the users who are already followed by current user
 
     const suggestedUsers = filteredUsers.slice(0, 4); //limiting the size to 5 users 
+
+    return res.status(200).json(new ApiResponse(200,suggestedUsers,"Suggested Users "));
 
 })
 
