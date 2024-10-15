@@ -32,7 +32,6 @@ const CreatePost = () => {
 					body: JSON.stringify({ text, img }),
 				});
 				const data = await res.json();
-				console.log(data , "Create post ");
 				return data;
 			} catch (error) {
 				throw new Error(error);

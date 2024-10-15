@@ -16,7 +16,6 @@ const RightPanel = () => {
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong!");
 				}
-				console.log(data , "suggested Users ");
 				return data?.data;
 			} catch (error) {
 				throw new Error(error.message);

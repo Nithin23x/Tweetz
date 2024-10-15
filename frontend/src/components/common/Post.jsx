@@ -13,20 +13,14 @@ import { formatPostDate } from "../../utils/date";
 
 const Post = ({ post }) => {
 	const [comment, setComment] = useState("");
-	console.log("Each Post",post);
 
 	const { data: authUser } =  useQuery({ queryKey: ["authUser"] }); //getting loggedIn user data.
-	console.log(authUser, "Auth user at post ") ;
 
 	const queryClient = useQueryClient();
 	const isLiked = post.likes.includes(authUser.data._id) ; 
-	console.log("isalreadyLiked",isLiked);
 
 	const postOwner = post.user; //owner of the post 
-
-	
 	const isMyPost = authUser.data._id === post.user._id;//my post 
-	console.log("Ismypost " , isMyPost) ;
 
 	const formattedDate = formatPostDate(post.createdAt);
 
@@ -62,7 +56,6 @@ const Post = ({ post }) => {
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong");
 				}
-				console.log(data, "Mutate likes ") ;
 				return data;
 			} catch (error) {
 				throw new Error(error);
@@ -77,7 +70,6 @@ const Post = ({ post }) => {
 			queryClient.setQueryData(["posts"], (oldData) => {
 				return oldData.map((p) => {
 					if (p._id === post._id) {
-						console.log("Refetching posts on account of likes ");
 						return { ...p, likes: updatedLikes };
 					}
 					return p;

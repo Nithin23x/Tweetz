@@ -11,7 +11,7 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { QueryClient, queryOptions, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { formatMemberSinceDate } from "../../utils/date";
 
 import useFollow from "../../hooks/useFollow";
@@ -41,7 +41,6 @@ const ProfilePage = () => {
 			try {
 				const res = await fetch(`/api/v1/app/getProfile/${username}`);
 				const data = await res.json();
-				console.log("userdata",data?.data )
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong");
 				}
@@ -53,7 +52,7 @@ const ProfilePage = () => {
 	});
 
 	const { isUpdatingProfile, updateProfile } = useUpdateUserProfile();
-	console.log("Auth User", authUser);
+	console.log("Profile Auth User", authUser);
 
 	const isMyProfile = authUser.data?._id === user?._id;
 	const memberSinceDate = formatMemberSinceDate(user?.createdAt);

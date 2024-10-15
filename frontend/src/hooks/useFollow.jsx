@@ -12,7 +12,6 @@ const useFollow = () => {
 				});
 
 				const data = await res.json();
-				console.log("follow data", data );
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong!");
 				}
@@ -22,7 +21,6 @@ const useFollow = () => {
 			}
 		},
 		onSuccess: () => {
-			console.log("Refetching queries")
 			queryClient.invalidateQueries({queryKey:"authUser"});
 			queryClient.invalidateQueries({ queryKey: ["userProfile"] });
 			queryClient.invalidateQueries({ queryKey: ["suggestedUsers"] });

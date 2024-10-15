@@ -19,7 +19,6 @@ const Sidebar = () => {
 					method: "POST",
 				});
 				const data = await res.json();
-				console.log(data , "Logout data")
 
 			} catch (error) {
 				throw new Error(error);
@@ -32,7 +31,6 @@ const Sidebar = () => {
 			//In this scenario the invalidateQueries({ queryKey: ["authUser"] }) refers to the origin useQuery()  in App.jsx
 			// executes the query for new info and also excutes the App.jsx return component/routes.
 			//In this way we are able to achieve the logout functionality ..
-			console.log("refetched data after logout " , data);
 			toast.success("User Loggedout");
 		},
 		onError: () => {
